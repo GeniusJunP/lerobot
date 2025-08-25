@@ -260,10 +260,11 @@ def record_loop(
             action = {**arm_action, **base_action} if len(base_action) > 0 else arm_action
         else:
             logging.info(
-                "No policy or teleoperator provided, skipping action generation."
-                "This is likely to happen when resetting the environment without a teleop device."
+                "No policy or teleoperator provided, skipping action generation. "
+                "This is likely to happen when resetting the environment without a teleop device. "
                 "The robot won't be at its rest position at the start of the next episode."
             )
+            timestamp = time.perf_counter() - start_episode_t
             continue
 
         # Action can eventually be clipped using `max_relative_target`,
