@@ -26,6 +26,7 @@ from huggingface_hub.constants import CONFIG_NAME
 from huggingface_hub.errors import HfHubHTTPError
 
 from lerobot.configs.types import FeatureType, NormalizationMode, PolicyFeature
+from lerobot.constants import ACTION, OBS_STATE
 from lerobot.optim.optimizers import OptimizerConfig
 from lerobot.optim.schedulers import LRSchedulerConfig
 from lerobot.utils.hub import HubMixin
@@ -122,8 +123,9 @@ class PreTrainedConfig(draccus.ChoiceRegistry, HubMixin, abc.ABC):
 
     @property
     def robot_state_feature(self) -> PolicyFeature | None:
-        for _, ft in self.input_features.items():
-            if ft.type is FeatureType.STATE:
+        # Restrict to the canonical robot state feature name to avoid accidental matches
+        for ft_name, ft in self.input_features.items():
+            if ft.type is FeatureType.STATE and ft_name == OBS_STATE:
                 return ft
         return None
 
@@ -140,8 +142,9 @@ class PreTrainedConfig(draccus.ChoiceRegistry, HubMixin, abc.ABC):
 
     @property
     def action_feature(self) -> PolicyFeature | None:
-        for _, ft in self.output_features.items():
-            if ft.type is FeatureType.ACTION:
+        # Restrict to the canonical action feature name to avoid accidental matches
+        for ft_name, ft in self.output_features.items():
+            if ft.type is FeatureType.ACTION and ft_name == ACTION:
                 return ft
         return None
 
@@ -163,19 +166,18 @@ class PreTrainedConfig(draccus.ChoiceRegistry, HubMixin, abc.ABC):
         revision: str | None = None,
         **policy_kwargs,
     ) -> T:
-        # Ensure all policy subclasses (e.g. ACT, Diffusion, etc.) are registered before parsing.
-        # Users sometimes import only `PreTrainedConfig` and call `.from_pretrained()` directly which
-        # leaves the draccus ChoiceRegistry unaware of subclasses, producing errors like:
-        # `draccus.utils.DecodingError: Couldn't find a choice class for 'act' ...`.
-        # A lightweight lazy import guarantees registration without forcing users to
-        # `import lerobot.policies` manually.
-        try:  # pragma: no cover - defensive; failure just means import already happened or is unavailable.
+        model_id = str(pretrained_name_or_path)
+        # Ensure all concrete policy subclasses are registered prior to parsing.
+        # Without this, calling `PreTrainedConfig.from_pretrained` directly (via CLI `--policy.path`)
+        # before any `lerobot.policies.*` import results in draccus not finding the choice class
+        # (e.g. 'act', 'diffusion', ...).
+        try:  # pragma: no cover - defensive (import may already be done or environment may be partial)
             import importlib
 
             importlib.import_module("lerobot.policies")
-        except Exception:  # noqa: BLE001 - we silently continue; worst case old behavior remains.
+        except Exception:  # noqa: BLE001
             pass
-        model_id = str(pretrained_name_or_path)
+
         config_file: str | None = None
         if Path(model_id).is_dir():
             if CONFIG_NAME in os.listdir(model_id):
