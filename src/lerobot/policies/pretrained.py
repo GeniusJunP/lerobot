@@ -246,7 +246,10 @@ class PreTrainedPolicy(nn.Module, HubMixin, abc.ABC):
             base_model=base_model,
         )
 
-        template_card = files("lerobot.templates").joinpath("lerobot_modelcard_template.md").read_text()
+        # Force UTF-8 to avoid Windows codepage issues (e.g. cp932 UnicodeDecodeError)
+        template_path = files("lerobot.templates").joinpath("lerobot_modelcard_template.md")
+        template_card = template_path.read_text(encoding="utf-8")
+        
         card = ModelCard.from_template(card_data, template_str=template_card)
         card.validate()
         return card
