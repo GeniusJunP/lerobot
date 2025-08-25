@@ -224,6 +224,8 @@ def record_loop(
         policy.reset()
 
     timestamp = 0
+    # Log the "no action" message only once per invocation of record_loop
+    logged_no_action = False
     start_episode_t = time.perf_counter()
     while timestamp < control_time_s:
         start_loop_t = time.perf_counter()
@@ -259,11 +261,12 @@ def record_loop(
 
             action = {**arm_action, **base_action} if len(base_action) > 0 else arm_action
         else:
-            logging.info(
-                "No policy or teleoperator provided, skipping action generation. "
-                "This is likely to happen when resetting the environment without a teleop device. "
-                "The robot won't be at its rest position at the start of the next episode."
-            )
+            if not logged_no_action:
+                logging.info(
+                    "No policy or teleoperator provided, skipping action generation (likely reset phase). "
+                    "Robot may not return to rest before next episode."
+                )
+                logged_no_action = True
             timestamp = time.perf_counter() - start_episode_t
             continue
 
