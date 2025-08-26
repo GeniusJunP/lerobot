@@ -85,6 +85,22 @@ sudo apt-get install cmake build-essential python-dev pkg-config libavformat-dev
 
 For other systems, see: [Compiling PyAV](https://pyav.org/docs/develop/overview/installation.html#bring-your-own-ffmpeg)
 
+#### Apple Silicon Macs (M1, M2, M3, etc.)
+
+LeRobot now fully supports Apple Silicon Macs! The installation process is the same as for Intel Macs:
+
+```bash
+pip install -e .
+```
+
+> [!TIP]
+> If you're using a Mac for robot teleoperation, you might need to give Terminal permission to access your keyboard. Go to **System Preferences > Security & Privacy > Input Monitoring** and check the box for Terminal.
+
+**Platform-specific considerations:**
+- All core functionality works on Apple Silicon
+- Hardware interfaces (motors, cameras) work the same way as on Intel Macs
+- Some tests may be skipped on Apple Silicon if they depend on architecture-specific test artifacts, but this doesn't affect functionality
+
 ## Optional dependencies
 
 LeRobot provides optional extras for specific functionalities. Multiple extras can be combined (e.g., `.[aloha,feetech]`). For all available extras, refer to `pyproject.toml`.
