@@ -100,7 +100,7 @@
 
 ## Installation
 
-LeRobot works with Python 3.10+ and PyTorch 2.2+.
+LeRobot works with Python 3.10+ and PyTorch 2.2+ on Linux, macOS (Intel & Apple Silicon), and Windows.
 
 ### Environment Setup
 
@@ -146,6 +146,8 @@ pip install -e .
 
 > **NOTE:** If you encounter build errors, you may need to install additional dependencies (`cmake`, `build-essential`, and `ffmpeg libs`). On Linux, run:
 > `sudo apt-get install cmake build-essential python3-dev pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev`. For other systems, see: [Compiling PyAV](https://pyav.org/docs/develop/overview/installation.html#bring-your-own-ffmpeg)
+
+> **Apple Silicon Macs (M1, M2, M3, etc.):** LeRobot fully supports Apple Silicon! Installation works the same way as above. For robot teleoperation, you may need to grant Terminal permission to access your keyboard in **System Preferences > Security & Privacy > Input Monitoring**.
 
 For simulations, 🤗 LeRobot comes with gymnasium environments that can be installed as extras:
 
